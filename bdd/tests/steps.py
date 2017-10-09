@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import random
 
 from lettuce import step, world
 from selenium import webdriver
@@ -73,14 +74,17 @@ def and_i_click_registrar_submenu(step):
 def and_i_fill_in_username_group1(step, username):
     txt_nombre_usuario = world.driver.find_element_by_xpath(
         '//*[@id="matricula"]')
-    txt_nombre_usuario.send_keys(username)
+    txt_nombre_usuario.send_keys(username + str(random.randint(0, 10000)))
 
 
 @step(u'And I fill in Nombre Completo "([^"]*)"')
 def and_i_fill_in_nombre_completo_group1(step, nombre_completo):
-    txt_nombre_completo = world.driver.find_element_by_xpath(
-        '//*[@id="nombre"]')
-    txt_nombre_completo.send_keys(nombre_completo)
+    fill_nombre_completo(nombre_completo)
+
+
+@step(u'When I fill in Nombre Completo "([^"]*)"')
+def when_i_fill_in_nombre_completo_group1(step, nombre_completo):
+    fill_nombre_completo(nombre_completo)
 
 
 @step(u'And I select in Registrar Como Administrador de Sistema')
@@ -150,13 +154,25 @@ def and_i_click_registrar_administrador(step):
     btn_registrar.click()
 
 
-@step(u'Then I can see the new Administrador in the tab Consulta de Administradores')
-def then_i_can_see_the_new_administrador_in_the_tab_consulta_de_administradores(step):
+@step(
+    u'Then I can see the new Administrador in the tab Consulta de Administradores')
+def then_i_can_see_the_new_administrador_in_the_tab_consulta_de_administradores(
+        step):
     world.driver.implicitly_wait(3)
     header = world.driver.find_elements_by_class_name('page-header')
-    assert len(header) == 1, 'No encuentra el título de la lista de usuarios (' + str(len(header)) + ')'
+    assert len(
+        header) == 1, 'No encuentra el título de la lista de usuarios (' + str(
+        len(header)) + ')'
     title = header[0].get_attribute('innerText')
     assert 'Consulta de Administradores' in title, 'Título no coincide "' + title + '"'
+
+
+@step(
+    u'Then I see the error message This field is required in Nombre de Usuario')
+def then_i_see_the_error_message_this_field_is_required_in_nombre_de_usuario(
+        step):
+    error_label = world.driver.find_element_by_xpath(
+        '//*[@id="addAlumno"]/div/div/div[1]/div[1]/label[2]')
 
 
 '''
@@ -201,3 +217,9 @@ def finalizar_driver():
     world.driver.get(
         "http://148.217.200.108/application/index.php?mod=usuarios&controlador=login&accion=logout")
     world.driver.quit()
+
+
+def fill_nombre_completo(nombre_completo):
+    txt_nombre_completo = world.driver.find_element_by_xpath(
+        '//*[@id="nombre"]')
+    txt_nombre_completo.send_keys(nombre_completo)
