@@ -50,6 +50,115 @@ Inicia pruebas de registro
 --------------------------------------------------------------------------------
 '''
 
+
+@step(u'Given I login to the system')
+def given_i_login_to_the_system(step):
+    iniciar_driver()
+    login('elAdmin', 102030)
+    send_login()
+
+
+@step(u'And I click Usuarios menu')
+def and_i_click_usuarios_menu(step):
+    world.driver.find_element_by_xpath('//*[@id="side-menu"]/li[2]/a').click()
+
+
+@step(u'And I click Registrar submenu')
+def and_i_click_registrar_submenu(step):
+    world.driver.find_element_by_xpath(
+        '//*[@id="side-menu"]/li[2]/ul/li[1]/a').click()
+
+
+@step(u'When I fill in Nombre de Usuario "([^"]*)"')
+def and_i_fill_in_username_group1(step, username):
+    txt_nombre_usuario = world.driver.find_element_by_xpath(
+        '//*[@id="matricula"]')
+    txt_nombre_usuario.send_keys(username)
+
+
+@step(u'And I fill in Nombre Completo "([^"]*)"')
+def and_i_fill_in_nombre_completo_group1(step, nombre_completo):
+    txt_nombre_completo = world.driver.find_element_by_xpath(
+        '//*[@id="nombre"]')
+    txt_nombre_completo.send_keys(nombre_completo)
+
+
+@step(u'And I select in Registrar Como Administrador de Sistema')
+def and_i_select_in_registrar_como_administrador_de_sistema(step):
+    cbox_reg_como = world.driver.find_element_by_xpath('//*[@id="type"]')
+    cbox_reg_como.click()
+    cbox_option = cbox_reg_como.find_element_by_xpath(
+        '//*[@id="type"]/option[1]')
+    cbox_option.click()
+
+
+@step(u'And I fill in Dirección "([^"]*)"')
+def and_i_fill_in_direccion_group1(step, direccion):
+    txt_direccion = world.driver.find_element_by_xpath('//*[@id="direccion"]')
+    txt_direccion.send_keys(direccion)
+
+
+@step(u'And I fill in Teléfono "([^"]*)"')
+def and_i_fill_in_telefono_group1(step, telefono):
+    txt_telefono = world.driver.find_element_by_xpath('//*[@id="telefono"]')
+    txt_telefono.send_keys(telefono)
+
+
+@step(u'And I fill in Código Postal "([^"]*)"')
+def and_i_fill_in_codigo_postal_group1(step, codigo_postal):
+    txt_cod_pos = world.driver.find_element_by_xpath('//*[@id="cp"]')
+    txt_cod_pos.send_keys(codigo_postal)
+
+
+@step(u'And I select in Estado Tlaxcala')
+def and_i_select_in_estado_tlaxcala(step):
+    cbox_estado = world.driver.find_element_by_xpath('//*[@id="estado"]')
+    cbox_estado.click()
+    cbox_option = cbox_estado.find_element_by_xpath(
+        '//*[@id="estado"]/option[29]')
+    cbox_option.click()
+
+
+@step(u'And I fill in Municipio "([^"]*)"')
+def and_i_fill_in_municipio_group1(step, municipio):
+    txt_municipio = world.driver.find_element_by_xpath('//*[@id="municipio"]')
+    txt_municipio.send_keys(municipio)
+
+
+@step(u'And I fill in Correo Electrónico "([^"]*)"')
+def and_i_fill_in_correo_electronico_group1(step, email):
+    txt_email = world.driver.find_element_by_xpath('//*[@id="correo"]')
+    txt_email.send_keys(email)
+
+
+@step(u'And I fill in Password "([^"]*)"')
+def and_i_fill_in_password_group1(step, password):
+    txt_password = world.driver.find_element_by_xpath('//*[@id="clave"]')
+    txt_password.send_keys(password)
+
+
+@step(u'And I fill in Confirmar Password "([^"]*)"')
+def and_i_fill_in_confirmar_password_group1(step, password):
+    txt_password = world.driver.find_element_by_xpath('//*[@id="rclave"]')
+    txt_password.send_keys(password)
+
+
+@step(u'And I click Registrar Administrador')
+def and_i_click_registrar_administrador(step):
+    btn_registrar = world.driver.find_element_by_xpath(
+        '//*[@id="addAlumno"]/div/div/div[2]/div/button[1]')
+    btn_registrar.click()
+
+
+@step(u'Then I can see the new Administrador in the tab Consulta de Administradores')
+def then_i_can_see_the_new_administrador_in_the_tab_consulta_de_administradores(step):
+    world.driver.implicitly_wait(3)
+    header = world.driver.find_elements_by_class_name('page-header')
+    assert len(header) == 1, 'No encuentra el título de la lista de usuarios (' + str(len(header)) + ')'
+    title = header[0].get_attribute('innerText')
+    assert 'Consulta de Administradores' in title, 'Título no coincide "' + title + '"'
+
+
 '''
 --------------------------------------------------------------------------------
 Helpers
@@ -72,6 +181,10 @@ def login(usuario, password):
     world.driver.find_element_by_id("id").send_keys(usuario)
     world.driver.find_element_by_id("pass").clear()
     world.driver.find_element_by_id("pass").send_keys(password)
+
+
+def send_login():
+    world.driver.find_element_by_xpath("//button[@type='submit']").click()
 
 
 def iniciar_driver():
