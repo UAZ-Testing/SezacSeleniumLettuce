@@ -254,13 +254,13 @@ def and_i_click_consultar_bodegas_menu(step):
 
 @step(u'When I fill in <search> "([^"]*)"')
 def when_i_fill_in_search_group1(step, nombre):
-    search_bodega(nombre)
+    fill_in_search(nombre)
 
 
 @step(u'Then I can see results in the table of bodegas')
 def then_i_can_see_results_in_the_table_of_bodegas(step):
-    assert find_bodega_in_table(world.busqueda_bodega), \
-        'No se encuentra la bodega ' + world.busqueda_bodega
+    assert find_bodega_in_table(world.search_query), \
+        'No se encuentra la bodega ' + world.search_query
 
 
 @step(u'Then I cant see results in the table of bodegas')
@@ -280,11 +280,11 @@ Inicia pruebas de edición de bodega
 
 @step(u'And I fill in <search> "([^"]*)"')
 def and_i_fill_in_search_group1(step, nombre):
-    search_bodega(nombre)
+    fill_in_search(nombre)
 
 
-@step(u'When I select the Option <Editar> from de menu <Opciones>')
-def when_i_select_the_option_editar_from_de_menu_opciones(step):
+@step(u'When I select the Option <Editar> from menu <Opciones>')
+def when_i_select_the_option_editar_from_menu_opciones(step):
     tb_body = world.driver.find_element_by_tag_name('tbody')
     filas = tb_body.find_elements_by_tag_name('tr')
     opts_button = filas[0].find_elements_by_tag_name('button')[0]
@@ -328,6 +328,38 @@ def then_i_can_see_the_new_estado_for_the_bodega(step):
             break
 
     assert bodega_actualizada, 'No se pudo actualizar la bodega'
+
+
+'''
+--------------------------------------------------------------------------------
+Inicia pruebas de eliminación de usuario
+--------------------------------------------------------------------------------
+'''
+
+
+@step(u'And I click Consultar usuarios menu')
+def and_i_click_consultar_usuarios_menu(step):
+    world.driver.find_element_by_xpath(
+        '//*[@id="side-menu"]/li[2]/ul/li[2]/a').click()
+
+
+@step(u'When I select the option <Dar de baja> from menu <Opciones>')
+def when_i_select_the_option_dar_de_baja_from_menu_opciones(step):
+    tb_body = world.driver.find_element_by_tag_name('tbody')
+    filas = tb_body.find_elements_by_tag_name('tr')
+    opts_button = filas[0].find_elements_by_tag_name('button')[0]
+    opts_button.click()
+    opts_menu = filas[0].find_elements_by_class_name('dropdown-menu')[0]
+    delete_opt = opts_menu.find_elements_by_tag_name('a')[1]
+    delete_opt.click()
+
+
+@step(u'Then I can see how the user is now disabled')
+def then_i_can_see_how_the_user_is_now_disabled(step):
+    tb_body = world.driver.find_element_by_tag_name('tbody')
+    fila = tb_body.find_elements_by_tag_name('tr')[0]
+    has_danger_class = 'danger' in fila.get_attribute('class')
+    assert has_danger_class, 'No se desactivó el usuario'
 
 
 '''
@@ -403,8 +435,8 @@ def find_bodega_in_table(nombre_bodega):
     return bodega_insertada
 
 
-def search_bodega(nombre):
+def fill_in_search(nombre):
     txt_search = world.driver.find_element_by_xpath(
         '//*[@id="dataTables-example_filter"]/label/input')
     txt_search.send_keys(nombre)
-    world.busqueda_bodega = nombre
+    world.search_query = nombre

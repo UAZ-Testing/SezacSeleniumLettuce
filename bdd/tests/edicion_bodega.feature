@@ -8,7 +8,7 @@ Feature: Editar bodega
     And I click Bodegas menu
     And I click Consultar bodegas menu
     And I fill in <search> "Mi Bodeguita"
-    When I select the Option <Editar> from de menu <Opciones>
+    When I select the Option <Editar> from menu <Opciones>
     And I fill in <Estado> "Sonora"
     And I click <Actualizar Datos> button
     Then I can see the new Estado for the bodega
