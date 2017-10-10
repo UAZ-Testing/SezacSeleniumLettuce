@@ -193,8 +193,8 @@ def and_i_click_registrar_bodega_menu(step):
         '//*[@id="side-menu"]/li[4]/ul/li[1]/a').click()
 
 
-@step(u'And I fill in Nombre de la Bodega "([^"]*)"')
-def and_i_fill_in_nombre_de_la_bodega_group1(step, nombre):
+@step(u'When I fill in Nombre de la Bodega "([^"]*)"')
+def when_i_fill_in_nombre_de_la_bodega_group1(step, nombre):
     txt_nombre = world.driver.find_element_by_xpath('//*[@id="nombre"]')
     txt_nombre.send_keys(nombre)
     world.new_bodega = nombre
@@ -234,27 +234,46 @@ def and_i_click_registrar_bodega_button(step):
 
 @step(u'Then I can see the new Bodega in the tab <Consultar Bodegas>')
 def then_i_can_see_the_new_bodega_in_the_tab_consultar_bodegas(step):
-    tb_body = world.driver.find_element_by_tag_name('tbody')
-    filas = tb_body.find_elements_by_tag_name('tr')
-    bodega_insertada = False
+    # assert find_bodega_in_table(
+    #     world.new_bodega), 'No se insertó la bodega ' + u'' + world.new_bodega
 
-    for fila in filas:
-        celdas = fila.find_elements_by_tag_name('td')
-        if world.new_bodega in u'' + celdas[0].text:
-            bodega_insertada = True
-            break
-
-    assert bodega_insertada, 'No se insertó la bodega ' + world.new_bodega
+    assert find_bodega_in_table(
+        world.new_bodega), u'No se insertó la bodega' + u'' + world.new_bodega
 
 
-@step(u'entonces puedo ver el usuario "([^"]*)" \
-en la lista de administradores registrados')
-def entonces_veo_el_usuario_en_la_lista_de_administradores(step, usuario):
-    tb_body = world.driver.find_element_by_tag_name('tbody')
-    elementos = tb_body.find_elements_by_tag_name("a")
-    elementosStr = [u"" + elemento.text for elemento in elementos]
-    assert usuario in elementosStr, \
-        u"No se encontró " + usuario + " en " + str(elementosStr)
+'''
+--------------------------------------------------------------------------------
+Inicia pruebas de búsqueda de bodega
+--------------------------------------------------------------------------------
+'''
+
+
+@step(u'And I click Consultar bodegas menu')
+def and_i_click_consultar_bodegas_menu(step):
+    world.driver.find_element_by_xpath(
+        '//*[@id="side-menu"]/li[4]/ul/li[2]/a').click()
+
+
+@step(u'When I fill in <search> "([^"]*)"')
+def when_i_fill_in_search_group1(step, nombre):
+    txt_search = world.driver.find_element_by_xpath(
+        '//*[@id="dataTables-example_filter"]/label/input')
+    txt_search.send_keys(nombre)
+    world.busqueda_bodega = nombre
+
+
+@step(u'Then I can see results in the table of bodegas')
+def then_i_can_see_results_in_the_table_of_bodegas(step):
+    assert find_bodega_in_table(world.busqueda_bodega), \
+        'No se encuentra la bodega ' + world.busqueda_bodega
+
+
+@step(u'Then I cant see results in the table of bodegas')
+def then_i_can_t_see_results_in_the_table_of_bodegas(step):
+    td_item_not_found = world.driver.find_element_by_xpath(
+        '//*[@id="dataTables-example"]/tbody/tr/td')
+    assert td_item_not_found.text == u'No matching records found', \
+        'No se muestra el mensaje de resultados no encontrados'
 
 
 '''
@@ -305,3 +324,22 @@ def fill_nombre_completo(nombre_completo):
     txt_nombre_completo = world.driver.find_element_by_xpath(
         '//*[@id="nombre"]')
     txt_nombre_completo.send_keys(nombre_completo)
+
+
+def find_bodega_in_table(nombre_bodega):
+    world.driver.find_element_by_xpath(
+        '//*[@id="dataTables-example_length"]/label/select').click()
+    world.driver.find_element_by_xpath(
+        '//*[@id="dataTables-example_length"]/label/select/option[4]').click()
+
+    tb_body = world.driver.find_element_by_tag_name('tbody')
+    filas = tb_body.find_elements_by_tag_name('tr')
+    bodega_insertada = False
+
+    for fila in filas:
+        celdas = fila.find_elements_by_tag_name('td')
+        if nombre_bodega in u'' + celdas[0].text:
+            bodega_insertada = True
+            break
+
+    return bodega_insertada

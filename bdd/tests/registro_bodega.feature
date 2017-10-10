@@ -7,7 +7,7 @@ Feature: Create bodega
     Given I login to the system
     And I click Bodegas menu
     And I click Registrar Bodega menu
-    And I fill in Nombre de la Bodega "Mi Bodeguita"
+    When I fill in Nombre de la Bodega "Mi Bodeguita"
     And I select in Elija un Administrador <Chuck Norris>
     And I fill in Dirección "Av. Gonzáles Ortega #43"
     And I fill in Teléfono "4949428616"
