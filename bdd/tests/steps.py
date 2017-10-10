@@ -4,6 +4,7 @@ import random
 from lettuce import step, world
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 import time
@@ -234,9 +235,6 @@ def and_i_click_registrar_bodega_button(step):
 
 @step(u'Then I can see the new Bodega in the tab <Consultar Bodegas>')
 def then_i_can_see_the_new_bodega_in_the_tab_consultar_bodegas(step):
-    # assert find_bodega_in_table(
-    #     world.new_bodega), 'No se insertó la bodega ' + u'' + world.new_bodega
-
     assert find_bodega_in_table(
         world.new_bodega), u'No se insertó la bodega' + u'' + world.new_bodega
 
@@ -256,10 +254,7 @@ def and_i_click_consultar_bodegas_menu(step):
 
 @step(u'When I fill in <search> "([^"]*)"')
 def when_i_fill_in_search_group1(step, nombre):
-    txt_search = world.driver.find_element_by_xpath(
-        '//*[@id="dataTables-example_filter"]/label/input')
-    txt_search.send_keys(nombre)
-    world.busqueda_bodega = nombre
+    search_bodega(nombre)
 
 
 @step(u'Then I can see results in the table of bodegas')
@@ -274,6 +269,65 @@ def then_i_can_t_see_results_in_the_table_of_bodegas(step):
         '//*[@id="dataTables-example"]/tbody/tr/td')
     assert td_item_not_found.text == u'No matching records found', \
         'No se muestra el mensaje de resultados no encontrados'
+
+
+'''
+--------------------------------------------------------------------------------
+Inicia pruebas de edición de bodega
+--------------------------------------------------------------------------------
+'''
+
+
+@step(u'And I fill in <search> "([^"]*)"')
+def and_i_fill_in_search_group1(step, nombre):
+    search_bodega(nombre)
+
+
+@step(u'When I select the Option <Editar> from de menu <Opciones>')
+def when_i_select_the_option_editar_from_de_menu_opciones(step):
+    tb_body = world.driver.find_element_by_tag_name('tbody')
+    filas = tb_body.find_elements_by_tag_name('tr')
+    opts_button = filas[0].find_elements_by_tag_name('button')[0]
+    opts_button.click()
+    opts_menu = filas[0].find_elements_by_class_name('dropdown-menu')[0]
+    edit_opt = opts_menu.find_elements_by_tag_name('a')[0]
+    edit_opt.click()
+
+
+@step(u'And I fill in <Estado> "([^"]*)"')
+def and_i_fill_in_estado_group1(step, estado):
+    txt_estado = world.driver.find_element_by_xpath('//*[@id="estado"]')
+    world.new_estado = estado + str(random.randint(0, 10000))
+    value = txt_estado.get_attribute('value')
+
+    for i in range(0, len(value)):
+        txt_estado.send_keys(Keys.BACKSPACE)
+
+    txt_estado.send_keys(world.new_estado)
+
+
+@step(u'And I click <Actualizar Datos> button')
+def and_i_click_actualizar_datos_button(step):
+    btn_actualizar = world.driver.find_element_by_xpath(
+        '//*[@id="addBodega"]/div/div/div/button[1]')
+    btn_actualizar.click()
+
+
+@step(u'Then I can see the new Estado for the bodega')
+def then_i_can_see_the_new_estado_for_the_bodega(step):
+    select_100_bodega_entries()
+
+    tb_body = world.driver.find_element_by_tag_name('tbody')
+    filas = tb_body.find_elements_by_tag_name('tr')
+    bodega_actualizada = False
+
+    for fila in filas:
+        celdas = fila.find_elements_by_tag_name('td')
+        if world.new_estado in u'' + celdas[4].text:
+            bodega_actualizada = True
+            break
+
+    assert bodega_actualizada, 'No se pudo actualizar la bodega'
 
 
 '''
@@ -326,11 +380,15 @@ def fill_nombre_completo(nombre_completo):
     txt_nombre_completo.send_keys(nombre_completo)
 
 
-def find_bodega_in_table(nombre_bodega):
+def select_100_bodega_entries():
     world.driver.find_element_by_xpath(
         '//*[@id="dataTables-example_length"]/label/select').click()
     world.driver.find_element_by_xpath(
         '//*[@id="dataTables-example_length"]/label/select/option[4]').click()
+
+
+def find_bodega_in_table(nombre_bodega):
+    select_100_bodega_entries()
 
     tb_body = world.driver.find_element_by_tag_name('tbody')
     filas = tb_body.find_elements_by_tag_name('tr')
@@ -343,3 +401,10 @@ def find_bodega_in_table(nombre_bodega):
             break
 
     return bodega_insertada
+
+
+def search_bodega(nombre):
+    txt_search = world.driver.find_element_by_xpath(
+        '//*[@id="dataTables-example_filter"]/label/input')
+    txt_search.send_keys(nombre)
+    world.busqueda_bodega = nombre
