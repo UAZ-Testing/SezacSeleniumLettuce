@@ -47,7 +47,7 @@ def entonces_puedo_ver_mensaje_y_vuelve_a_pantalla_de_ingreso(step, mensaje):
 
 '''
 --------------------------------------------------------------------------------
-Inicia pruebas de registro
+Inicia pruebas de registro de usuario
 --------------------------------------------------------------------------------
 '''
 
@@ -173,6 +173,88 @@ def then_i_see_the_error_message_this_field_is_required_in_nombre_de_usuario(
         step):
     error_label = world.driver.find_element_by_xpath(
         '//*[@id="addAlumno"]/div/div/div[1]/div[1]/label[2]')
+
+
+'''
+--------------------------------------------------------------------------------
+Inicia pruebas de registro de bodega
+--------------------------------------------------------------------------------
+'''
+
+
+@step(u'And I click Bodegas menu')
+def and_i_click_bodegas_menu(step):
+    world.driver.find_element_by_xpath('//*[@id="side-menu"]/li[4]/a').click()
+
+
+@step(u'And I click Registrar Bodega menu')
+def and_i_click_registrar_bodega_menu(step):
+    world.driver.find_element_by_xpath(
+        '//*[@id="side-menu"]/li[4]/ul/li[1]/a').click()
+
+
+@step(u'And I fill in Nombre de la Bodega "([^"]*)"')
+def and_i_fill_in_nombre_de_la_bodega_group1(step, nombre):
+    txt_nombre = world.driver.find_element_by_xpath('//*[@id="nombre"]')
+    txt_nombre.send_keys(nombre)
+    world.new_bodega = nombre
+
+
+@step(u'And I select in Elija un Administrador <Chuck Norris>')
+def and_i_select_in_elija_un_administrador_chuck_norris(step):
+    cbox_administrador = world.driver.find_element_by_xpath(
+        '//*[@id="id_admin"]')
+    cbox_administrador.click()
+    cbox_option = cbox_administrador.find_element_by_xpath(
+        '//*[@id="id_admin"]/option')
+    cbox_option.click()
+
+
+@step(u'And I select in País <México>')
+def and_i_select_in_pais_mexico(step):
+    cbox_paises = world.driver.find_element_by_xpath(
+        '//*[@id="pais"]')
+    cbox_paises.click()
+    cbox_option = cbox_paises.find_element_by_xpath(
+        '//*[@id="pais"]/option[1]')
+    cbox_option.click()
+
+
+@step(u'And I fill in Estado "([^"]*)"')
+def and_i_fill_in_estado_group1(step, estado):
+    txt_estado = world.driver.find_element_by_xpath('//*[@id="estado"]')
+    txt_estado.send_keys(estado)
+
+
+@step(u'And I click Registrar Bodega button')
+def and_i_click_registrar_bodega_button(step):
+    button_registrar = world.driver.find_element_by_xpath(
+        '//*[@id="addBodega"]/div/div/div/button[1]').click()
+
+
+@step(u'Then I can see the new Bodega in the tab <Consultar Bodegas>')
+def then_i_can_see_the_new_bodega_in_the_tab_consultar_bodegas(step):
+    tb_body = world.driver.find_element_by_tag_name('tbody')
+    filas = tb_body.find_elements_by_tag_name('tr')
+    bodega_insertada = False
+
+    for fila in filas:
+        celdas = fila.find_elements_by_tag_name('td')
+        if world.new_bodega in u'' + celdas[0].text:
+            bodega_insertada = True
+            break
+
+    assert bodega_insertada, 'No se insertó la bodega ' + world.new_bodega
+
+
+@step(u'entonces puedo ver el usuario "([^"]*)" \
+en la lista de administradores registrados')
+def entonces_veo_el_usuario_en_la_lista_de_administradores(step, usuario):
+    tb_body = world.driver.find_element_by_tag_name('tbody')
+    elementos = tb_body.find_elements_by_tag_name("a")
+    elementosStr = [u"" + elemento.text for elemento in elementos]
+    assert usuario in elementosStr, \
+        u"No se encontró " + usuario + " en " + str(elementosStr)
 
 
 '''
